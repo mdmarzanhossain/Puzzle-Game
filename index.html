@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+        .test{
+            background-color: rgb(0, 0, 0) !important;
+            color: rgb(255, 255, 255) !important;
+            font-weight: bold !important;
+        }
+    </style>
+    
+    <title>Puzzle Solve</title>
+    <script src="js/jquery-3.5.0.js"></script>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <label for="userInput" class="form-label mt-3">Enter Pair Value</label>
+            <input type="number" class="form-control" id="userInput">
+            <button id="userButton" class="btn btn-primary mt-3">Submit</button>
+        </div>
+        <div class="col-md-8 mt-5">
+            <div class="row puzzle-items">
+                <!-- <div class="puzzle-items"></div> -->
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function appendItem(userInput){
+        const puzzleItemNumber = userInput * 2;
+        let arrayOne = [];
+        let arrayTwo = [];
+        
+        for(let i = 0; i < puzzleItemNumber; i++){
+             $('.puzzle-items').append(`<div class="col-md-3"><button class='btn btn-primary imgbtn mb-3'>Button ${i+1}</button></div>`);
+        }
+
+        arrayUniqueValueGenerate(arrayOne, userInput);
+        arrayUniqueValueGenerate(arrayTwo, userInput);
+
+        let mergeArray = $.merge(arrayOne,arrayTwo);
+        //console.log("merged array: ", mergeArray);
+
+        let shuffleArray = [];
+        
+        let finalArray = shuffle(shuffleArray, mergeArray);
+
+        console.log("shuffle array: ", finalArray);
+        
+        let i = 0;
+        $('.imgbtn').each(function(){
+            $(this).attr('value', finalArray[i++]);
+        })
+
+        //play game
+
+        $(".imgbtn").on('click', function(){
+            $(this).addClass('test');
+
+            clickedValueStore($(this).attr('value'));
+
+            let currentVal = $(this).attr('value');
+            //$(this).html(currentVal);
+            //console.log("image button clicked", currentVal);
+            
+            // 2 ta click hole check korbe then match korle class remove korbe. na korleo remove korbe.
+            if($(".test").length === 2){
+                //console.log("2 button clicked");
+                if(pairArrayValue[0] === pairArrayValue[1]){
+                    pairArrayValue = [];
+                    console.log("value matched");
+                    $(".imgbtn").removeClass("test");
+                }
+                else{
+                    $(".imgbtn").removeClass("test");
+                }
+            }
+            else{
+
+            }
+        });
+
+        //  console.log("arrayOne " + arrayOne);
+        //  console.log("arrayTwo " + arrayTwo);
+        
+    }
+
+    var pairArrayValue = [];
+    function clickedValueStore(value) {
+        
+        if(pairArrayValue.length < 2){
+            pairArrayValue.push(value);
+        }
+        else{
+            pairArrayValue = [];    // array value 2 er beshi hole empty kore dibe then value push korbe
+            pairArrayValue.push(value);
+        }
+        console.log("pairArrayValue " + pairArrayValue);
+        return pairArrayValue;
+        
+    }
+
+    function shuffle(shuffleArray, mergeArray){
+        let index = [];
+        arrayUniqueValueGenerate(index, mergeArray.length);
+
+        console.log("index ",index);
+        let i = 0;
+        while(i < index.length){
+            shuffleArray.push(mergeArray[index[i]-1]);
+            i++;
+        }
+        //console.log(shuffleArray);
+        return shuffleArray;
+    }
+
+    function arrayUniqueValueGenerate(array,arraySize){
+        let i = 0;
+        while(i < arraySize){
+            let x = randomValueGenerate(arraySize);
+            if(!array.includes(x)){
+                array.push(x);
+                i++;
+            }
+        }
+    }
+
+    function randomValueGenerate(userInput){
+        let x = Math.floor((Math.random() * userInput) + 1);
+        return x;
+    }
+
+    // user input submit
+
+    $('#userButton').on('click',function(){
+        $('.puzzle-items').html("");
+        const userInput = $('#userInput').val();
+        if(userInput < 0){
+            alert('Please enter a positive number');
+        }
+        else if(userInput == 0 || userInput == 1){
+            alert('Please enter a number greater than 1');
+        }
+        else{
+            appendItem(userInput);
+        }
+    })
+    
+</script>
+    <script src="js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
+</body>
+</html>
