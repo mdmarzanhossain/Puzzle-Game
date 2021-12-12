@@ -6,10 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <style>
+        .row{
+            height: 100%;
+        }
         .test{
             background-color: rgb(0, 0, 0) !important;
             color: rgb(255, 255, 255) !important;
             font-weight: bold !important;
+        }
+        .item-design{
+            text-decoration: none;
+            border: 5px solid lightgray;
+            border-radius: 5px;
+            padding: 50px;
+            background-color: lightblue;
+            font-weight: bold;
+            color: black;
+            height: 100px;
+        }
+        .show{
+            display: none;
         }
     </style>
     
@@ -18,29 +34,49 @@
 </head>
 <body>
 
-<div class="container">
+<div class="container mt-5">
     <div class="row">
-        <div class="col-md-4">
+        <div class="offset-md-4 col-md-4">
             <label for="userInput" class="form-label mt-3">Enter Pair Value</label>
             <input type="number" class="form-control" id="userInput">
-            <button id="userButton" class="btn btn-primary mt-3">Submit</button>
+            <button id="userButton" class="btn btn-primary mt-3 mb-5">Submit</button>
         </div>
-        <div class="col-md-8 mt-5">
-            <div class="row puzzle-items">
-                <!-- <div class="puzzle-items"></div> -->
-            </div>
+    </div>
+    <div class="row">
+        <div class="puzzle-items mb-5 mt-5 text-center">
+
         </div>
+    </div>
+
+    <div class="row">
+        <div class="result"></div>
     </div>
 </div>
 <script>
+    //image load
+    const images = [];
 
+    for(let i = 0; i < 8;i++){
+        images[i] = new Image();
+        images[0].src = `images/${i}.png`;
+    }
+
+    //puzzle item append
     function appendItem(userInput){
         const puzzleItemNumber = userInput * 2;
         let arrayOne = [];
         let arrayTwo = [];
+        let j = 0,k = 0;
         
         for(let i = 0; i < puzzleItemNumber; i++){
-             $('.puzzle-items').append(`<div class="col-md-3"><button class='btn btn-primary imgbtn mb-3'>Button ${i+1}</button></div>`);
+            if(i % 6 === 0){
+                k = j;
+                $('.puzzle-items').append(`<div class='row row${j++} mb-4'><div class="col-md-2"><a id="${i+1}" class='item-design imgbtn mb-3'>${i+1}</a></div></div>`);
+            }
+            else{
+                $(`.row${k}`).append(`<div class="col-md-2"><a id="${i+1}" class='item-design imgbtn mb-3'>${i+1}</a></div>`);
+            }
+             
         }
 
         arrayUniqueValueGenerate(arrayOne, userInput);
@@ -63,23 +99,41 @@
         //play game
 
         $(".imgbtn").on('click', function(){
-            $(this).addClass('test');
+            //$(this).toggleClass('test');
 
             clickedValueStore($(this).attr('value'));
 
+            let currentID = $(this).attr('id');
             let currentVal = $(this).attr('value');
-            //$(this).html(currentVal);
-            //console.log("image button clicked", currentVal);
+            let htmlVal = $(this).html();
+            console.log(currentID);
+
+            // if($(this).attr('id') === currentID) {
+            //     $(this).html(`<a><img src=./images/${currentVal-1}.png></a>`);
+            // }else{
+            //     $(this).html('');
+            // }
+
+            if($(this).html() === currentVal) {
+                $(this).html(`<a><img src=./images/${currentVal-1}.png></a>`);
+            }else{
+                $(this).html(currentVal);
+            }
+
+            // $(`#${currentID}`).on("click", function (){
+            //     $(this).remove();
+            // })
             
             // 2 ta click hole check korbe then match korle class remove korbe. na korleo remove korbe.
             if($(".test").length === 2){
                 //console.log("2 button clicked");
                 if(pairArrayValue[0] === pairArrayValue[1]){
-                    pairArrayValue = [];
+                    pairArrayValue = [];        //if pair match make array empty
                     console.log("value matched");
                     $(".imgbtn").removeClass("test");
                 }
                 else{
+                    //$(".result").html("");
                     $(".imgbtn").removeClass("test");
                 }
             }
@@ -87,13 +141,10 @@
 
             }
         });
-
-        //  console.log("arrayOne " + arrayOne);
-        //  console.log("arrayTwo " + arrayTwo);
-        
     }
 
     var pairArrayValue = [];
+
     function clickedValueStore(value) {
         
         if(pairArrayValue.length < 2){
@@ -112,7 +163,7 @@
         let index = [];
         arrayUniqueValueGenerate(index, mergeArray.length);
 
-        console.log("index ",index);
+       // console.log("index ",index);
         let i = 0;
         while(i < index.length){
             shuffleArray.push(mergeArray[index[i]-1]);
