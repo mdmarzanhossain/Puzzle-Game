@@ -7,24 +7,21 @@
     <link href="css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
     <style>
         .row{
-            height: 100%;
+            margin-bottom: 10px;
         }
         .test{
-            background-color: rgb(0, 0, 0) !important;
-            color: rgb(255, 255, 255) !important;
-            font-weight: bold !important;
+
         }
         .item-design{
-            text-decoration: none;
             border: 5px solid lightgray;
             border-radius: 5px;
-            padding: 50px;
             background-color: lightblue;
             font-weight: bold;
             color: black;
-            height: 100px;
+            height: 200px;
+            width: 200px;
         }
-        .show{
+        .visible{
             display: none;
         }
     </style>
@@ -34,27 +31,28 @@
 </head>
 <body>
 
-<div class="container mt-5">
+<div class="container mt-2">
     <div class="row">
         <div class="offset-md-4 col-md-4">
-            <label for="userInput" class="form-label mt-3">Enter Pair Value</label>
+            <label for="userInput" class="form-label mt-2">Enter Pair Value</label>
             <input type="number" class="form-control" id="userInput">
-            <button id="userButton" class="btn btn-primary mt-3 mb-5">Submit</button>
+            <button id="userButton" class="btn btn-primary mt-3 mb-2">Submit</button>
         </div>
     </div>
-    <div class="row">
-        <div class="puzzle-items mb-5 mt-5 text-center">
-
-        </div>
-    </div>
-
     <div class="row">
         <div class="result"></div>
+    </div>
+    <div class="row">
+        <div class="puzzle-items mt-5 text-center">
+
+        </div>
     </div>
 </div>
 <script>
     //image load
     const images = [];
+    let point = 0;
+    let userInput;
 
     for(let i = 0; i < 8;i++){
         images[i] = new Image();
@@ -62,7 +60,8 @@
     }
 
     //puzzle item append
-    function appendItem(userInput){
+    function appendItem(){
+
         const puzzleItemNumber = userInput * 2;
         let arrayOne = [];
         let arrayTwo = [];
@@ -71,10 +70,22 @@
         for(let i = 0; i < puzzleItemNumber; i++){
             if(i % 6 === 0){
                 k = j;
-                $('.puzzle-items').append(`<div class='row row${j++} mb-4'><div class="col-md-2"><a id="${i+1}" class='item-design imgbtn mb-3'>${i+1}</a></div></div>`);
+                $('.puzzle-items')
+                    .append(`<div class='row row${j++}'>
+                                <div class="col-md-2">
+                                    <button id="${i+1}" class='item-design imgbtn'>
+
+                                    </button>
+                                </div>
+                              </div>`
+                    );
             }
             else{
-                $(`.row${k}`).append(`<div class="col-md-2"><a id="${i+1}" class='item-design imgbtn mb-3'>${i+1}</a></div>`);
+                $(`.row${k}`)
+                    .append(`<div class="col-md-2">
+                                <button id="${i+1}" class='item-design imgbtn'>
+                                </button>
+                              </div>`);
             }
              
         }
@@ -83,64 +94,72 @@
         arrayUniqueValueGenerate(arrayTwo, userInput);
 
         let mergeArray = $.merge(arrayOne,arrayTwo);
-        //console.log("merged array: ", mergeArray);
 
         let shuffleArray = [];
         
         let finalArray = shuffle(shuffleArray, mergeArray);
 
         console.log("shuffle array: ", finalArray);
-        
+
+        //image button e value add
         let i = 0;
         $('.imgbtn').each(function(){
-            $(this).attr('value', finalArray[i++]);
+            $(this).attr('value', finalArray[i]);
+            $(this).append(`<img class="${i+1} visible imgTest"  src="./images/${finalArray[i]}.png">`);
+            i++;
         })
 
         //play game
+        $(".imgbtn").on('click', playGame);
+    }
 
-        $(".imgbtn").on('click', function(){
-            //$(this).toggleClass('test');
+    function playGame(){
 
-            clickedValueStore($(this).attr('value'));
+            $(this).addClass("test done");
+            let currentValue = $(this).attr('id');
 
-            let currentID = $(this).attr('id');
-            let currentVal = $(this).attr('value');
-            let htmlVal = $(this).html();
-            console.log(currentID);
-
-            // if($(this).attr('id') === currentID) {
-            //     $(this).html(`<a><img src=./images/${currentVal-1}.png></a>`);
-            // }else{
-            //     $(this).html('');
-            // }
-
-            if($(this).html() === currentVal) {
-                $(this).html(`<a><img src=./images/${currentVal-1}.png></a>`);
+            if($(`.${currentValue}`).hasClass('visible')){
+                $(`.${currentValue}`).removeClass('visible');
+                $(`#${currentValue}`).removeClass('item-design');
+                clickedValueStore($(this).attr('value'));
             }else{
-                $(this).html(currentVal);
+                $(`.${currentValue}`).addClass('visible');
+                $(`#${currentValue}`).addClass('item-design');
             }
 
-            // $(`#${currentID}`).on("click", function (){
-            //     $(this).remove();
-            // })
-            
+
+
             // 2 ta click hole check korbe then match korle class remove korbe. na korleo remove korbe.
             if($(".test").length === 2){
-                //console.log("2 button clicked");
+                $(".imgbtn").removeClass("test");
+                console.log("2 button clicked");
                 if(pairArrayValue[0] === pairArrayValue[1]){
-                    pairArrayValue = [];        //if pair match make array empty
-                    console.log("value matched");
+                    $('.done').addClass('complete');
+                    $('.complete').off('click');
+                    $('.done').removeClass('imgbtn');
+                    $('.complete').children().removeClass("imgTest");
+                    point++;
+                   // console.log("Point " + point + " userInput" + userInput);
+                    if (point === userInput){
+                        $(".result").html("<b>You Win</b>");
+                    }
                     $(".imgbtn").removeClass("test");
+
+                    pairArrayValue = [];
                 }
                 else{
-                    //$(".result").html("");
-                    $(".imgbtn").removeClass("test");
+                   // $(".result").text("");
+                    setTimeout(function(){
+                        $(".imgbtn").removeClass("test done");
+                        $('.imgTest').addClass('visible');
+                        $('.imgbtn').addClass('item-design');
+                    }, 500);
+
                 }
             }
             else{
 
             }
-        });
     }
 
     var pairArrayValue = [];
@@ -163,13 +182,11 @@
         let index = [];
         arrayUniqueValueGenerate(index, mergeArray.length);
 
-       // console.log("index ",index);
         let i = 0;
         while(i < index.length){
             shuffleArray.push(mergeArray[index[i]-1]);
             i++;
         }
-        //console.log(shuffleArray);
         return shuffleArray;
     }
 
@@ -193,15 +210,20 @@
 
     $('#userButton').on('click',function(){
         $('.puzzle-items').html("");
-        const userInput = $('#userInput').val();
+        $('.result').html("");
+        userInput = parseInt($('#userInput').val());
+        point = 0;
         if(userInput < 0){
             alert('Please enter a positive number');
         }
         else if(userInput == 0 || userInput == 1){
             alert('Please enter a number greater than 1');
         }
+        else if(userInput > 8){
+            alert('Please enter a number between 2 to 8')
+        }
         else{
-            appendItem(userInput);
+            appendItem();
         }
     })
     
